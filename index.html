@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objetivos Estratégicos - Plantilla Editable</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #60BFB8 0%, #244A80 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s ease-out;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .header h1:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .header h1[contenteditable="true"] {
+            outline: 2px dashed rgba(255,255,255,0.5);
+        }
+
+        .header p {
+            font-size: 1em;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.3s both;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .header p:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .header p[contenteditable="true"] {
+            outline: 2px dashed rgba(255,255,255,0.5);
+        }
+
+        .edit-mode-toggle {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-mode-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .edit-mode-toggle.active {
+            background: #e74c3c;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 1.6em;
+            font-weight: bold;
+            margin-bottom: 3px;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        .stat-number:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .stat-number[contenteditable="true"] {
+            outline: 1px dashed rgba(255,255,255,0.7);
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            opacity: 0.9;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        .stat-label:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .stat-label[contenteditable="true"] {
+            outline: 1px dashed rgba(255,255,255,0.7);
+        }
+
+        .business-units-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+            min-height: 600px;
+        }
+
+        .business-unit {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .business-unit:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .business-unit.b2b-content { border-top: 6px solid #e74c3c; }
+        .business-unit.b2b { border-top: 6px solid #3498db; }
+        .business-unit.b2c { border-top: 6px solid #27ae60; }
+
+        .unit-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .business-unit:hover .unit-actions {
+            opacity: 1;
+        }
+
+        .edit-mode .unit-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: #f39c12;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn.delete {
+            background: #e74c3c;
+        }
+
+        .add-unit-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #ccc;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            color: #666;
+        }
+
+        .add-unit-btn:hover {
+            border-color: #007bff;
+            background: rgba(255, 255, 255, 0.95);
+            color: #007bff;
+            transform: translateY(-2px);
+        }
+
+        .add-unit-btn .plus-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .unit-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .unit-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .unit-title:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .unit-title[contenteditable="true"] {
+            outline: 2px dashed #007bff;
+        }
+
+        .b2b-content .unit-title { color: #e74c3c; }
+        .b2b .unit-title { color: #3498db; }
+        .b2c .unit-title { color: #27ae60; }
+
+        .unit-description {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            font-style: italic;
+            cursor: pointer;
+            padding: 3px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .unit-description:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .unit-description[contenteditable="true"] {
+            outline: 2px dashed #007bff;
+        }
+
+        .strategic-objectives {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .strategic-objectives::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .strategic-objectives::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .strategic-objectives::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .strategic-objectives::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .strategic-objective {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .strategic-objective:hover {
+            background: #e9ecef;
+            transform: translateX(3px);
+        }
+
+        .objective-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 3px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .strategic-objective:hover .objective-actions {
+            opacity: 1;
+        }
+
+        .edit-mode .objective-actions {
+            opacity: 1;
+        }
+
+        .objective-automation { border-left-color: #e74c3c; }
+        .objective-expansion { border-left-color: #3498db; }
+        .objective-reputation { border-left-color: #9b59b6; }
+        .objective-experience { border-left-color: #e67e22; }
+        .objective-innovation { border-left-color: #1abc9c; }
+        .objective-reporting { border-left-color: #f39c12; }
+        .objective-consolidation { border-left-color: #27ae60; }
+        .objective-subscription { border-left-color: #2c3e50; }
+
+        .objective-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .objective-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1em;
+            flex-shrink: 0;
+        }
+
+        .objective-automation .objective-icon { background: #e74c3c; }
+        .objective-expansion .objective-icon { background: #3498db; }
+        .objective-reputation .objective-icon { background: #9b59b6; }
+        .objective-experience .objective-icon { background: #e67e22; }
+        .objective-innovation .objective-icon { background: #1abc9c; }
+        .objective-reporting .objective-icon { background: #f39c12; }
+        .objective-consolidation .objective-icon { background: #27ae60; }
+        .objective-subscription .objective-icon { background: #2c3e50; }
+
+        .objective-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
+            flex: 1;
+            cursor: pointer;
+            padding: 3px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .objective-name:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .objective-name[contenteditable="true"] {
+            outline: 2px dashed #007bff;
+        }
+
+        .specific-objectives {
+            list-style: none;
+        }
+
+        .specific-objective {
+            background: white;
+            margin: 6px 0;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #ddd;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .specific-objective:hover {
+            border-left-color: #007bff;
+            transform: translateX(2px);
+        }
+
+        .specific-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: flex;
+            gap: 2px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .specific-objective:hover .specific-actions {
+            opacity: 1;
+        }
+
+        .edit-mode .specific-actions {
+            opacity: 1;
+        }
+
+        .specific-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+            font-size: 0.9em;
+            line-height: 1.3;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .specific-title:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .specific-title[contenteditable="true"] {
+            outline: 1px dashed #007bff;
+        }
+
+        .specific-description {
+            color: #6c757d;
+            font-size: 0.8em;
+            line-height: 1.3;
+            margin-bottom: 4px;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .specific-description:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .specific-description[contenteditable="true"] {
+            outline: 1px dashed #007bff;
+        }
+
+        .specific-responsible {
+            color: #007bff;
+            font-size: 0.75em;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .specific-responsible:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .specific-responsible[contenteditable="true"] {
+            outline: 1px dashed #007bff;
+        }
+
+        .add-objective-btn, .add-specific-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .add-objective-btn:hover, .add-specific-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .collapsible-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsed .collapsible-content {
+            max-height: 0;
+        }
+
+        .toggle-icon {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+            font-size: 0.8em;
+        }
+
+        .collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .edit-mode {
+            outline: 2px dashed rgba(0, 123, 255, 0.5);
+        }
+
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 1400px) {
+            .business-units-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                height: auto;
+                min-height: auto;
+            }
+            
+            .business-unit {
+                max-height: none;
+                overflow: visible;
+            }
+            
+            .strategic-objectives {
+                overflow-y: visible;
+            }
+        }
+
+        @media (min-width: 1401px) and (max-width: 1600px) {
+            .unit-title {
+                font-size: 1.4em;
+            }
+            
+            .objective-name {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 contenteditable="false" onclick="makeEditable(this)">OBJETIVOS ESTRATÉGICOS Q4 2025</h1>
+            <p contenteditable="false" onclick="makeEditable(this)">Business Units - Plantilla Editable</p>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="edit-mode-toggle" onclick="toggleEditMode()">🔧 Activar Modo Edición</button>
+            <button class="export-btn" onclick="exportHTML()">📥 Exportar HTML</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" contenteditable="false" onclick="makeEditable(this)">0</div>
+                <div class="stat-label" contenteditable="false" onclick="makeEditable(this)">Objetivos Estratégicos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" contenteditable="false" onclick="makeEditable(this)">0</div>
+                <div class="stat-label" contenteditable="false" onclick="makeEditable(this)">Objetivos Específicos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" contenteditable="false" onclick="makeEditable(this)">0</div>
+                <div class="stat-label" contenteditable="false" onclick="makeEditable(this)">Business Units</div>
+            </div>
+        </div>
+
+        <div class="business-units-grid" id="businessUnitsGrid">
+            <!-- Las unidades de negocio se generarán dinámicamente -->
+            <div class="add-unit-btn" onclick="addBusinessUnit()" style="display: none;">
+                <div class="plus-icon">+</div>
+                <div>Agregar Business Unit</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editMode = false;
+        let businessUnits = [];
+
+        // Colores predefinidos para las business units
+        const unitColors = ['b2b-content', 'b2b', 'b2c', 'b2b-content', 'b2b', 'b2c'];
+        const objectiveTypes = [
+            { class: 'objective-automation', icon: '🤖', name: 'Automatización y IA' },
+            { class: 'objective-expansion', icon: '🚀', name: 'Expansión de Negocio' },
+            { class: 'objective-reputation', icon: '⭐', name: 'Mejora Reputación y Posicionamiento' },
+            { class: 'objective-experience', icon: '😊', name: 'Experiencia Cliente' },
+            { class: 'objective-innovation', icon: '💡', name: 'Innovación Productos' },
+            { class: 'objective-reporting', icon: '📊', name: 'Reporting y Métricas' },
+            { class: 'objective-consolidation', icon: '🔗', name: 'Consolidación operativa' },
+            { class: 'objective-subscription', icon: '🔄', name: 'Venta Suscripción - Recurrencia' }
+        ];
+
+        function toggleEditMode() {
+            editMode = !editMode;
+            const button = document.querySelector('.edit-mode-toggle');
+            const body = document.body;
+            const addUnitBtn = document.querySelector('.add-unit-btn');
+            
+            if (editMode) {
+                button.textContent = '🔒 Desactivar Modo Edición';
+                button.classList.add('active');
+                body.classList.add('edit-mode');
+                addUnitBtn.style.display = 'flex';
+            } else {
+                button.textContent = '🔧 Activar Modo Edición';
+                button.classList.remove('active');
+                body.classList.remove('edit-mode');
+                addUnitBtn.style.display = 'none';
+                
+                // Desactivar todos los elementos editables
+                document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                    el.contentEditable = false;
+                });
+            }
+            
+            updateStats();
+        }
+
+        function makeEditable(element) {
+            if (editMode) {
+                element.contentEditable = true;
+                element.focus();
+                
+                element.addEventListener('blur', function() {
+                    element.contentEditable = false;
+                    updateStats();
+                });
+                
+                element.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        element.blur();
+                    }
+                });
+            }
+        }
+
+        function addBusinessUnit() {
+            const grid = document.getElementById('businessUnitsGrid');
+            const addBtn = grid.querySelector('.add-unit-btn');
+            const unitIndex = businessUnits.length;
+            const colorClass = unitColors[unitIndex % unitColors.length];
+            
+            const unitHTML = `
+                <div class="business-unit ${colorClass}">
+                    <div class="unit-actions">
+                        <button class="action-btn delete" onclick="deleteBusinessUnit(this)" title="Eliminar">×</button>
+                    </div>
+                    <div class="unit-header">
+                        <div class="unit-title" contenteditable="false" onclick="makeEditable(this)">Nueva Business Unit</div>
+                        <div class="unit-description" contenteditable="false" onclick="makeEditable(this)">Descripción de la unidad de negocio</div>
+                    </div>
+                    <div class="strategic-objectives">
+                        <button class="add-objective-btn" onclick="addStrategicObjective(this)">+ Agregar Objetivo Estratégico</button>
+                    </div>
+                </div>
+            `;
+            
+            grid.insertBefore(createElementFromHTML(unitHTML), addBtn);
+            businessUnits.push({ objectives: [] });
+            updateStats();
+        }
+
+        function deleteBusinessUnit(button) {
+            if (confirm('¿Está seguro de que desea eliminar esta Business Unit?')) {
+                const unit = button.closest('.business-unit');
+                const index = Array.from(unit.parentNode.children).indexOf(unit) - 1;
+                unit.remove();
+                businessUnits.splice(index, 1);
+                updateStats();
+            }
+        }
+
+        function addStrategicObjective(button) {
+            const container = button.parentElement;
+            const objectiveType = objectiveTypes[Math.floor(Math.random() * objectiveTypes.length)];
+            
+            const objectiveHTML = `
+                <div class="strategic-objective ${objectiveType.class}">
+                    <div class="objective-actions">
+                        <button class="action-btn delete" onclick="deleteStrategicObjective(this)" title="Eliminar">×</button>
+                    </div>
+                    <div class="objective-header collapsible-header" onclick="toggleCollapse(this)">
+                        <div class="objective-icon">${objectiveType.icon}</div>
+                        <div class="objective-name" contenteditable="false" onclick="makeEditable(this)">${objectiveType.name}</div>
+                        <div class="toggle-icon">▼</div>
+                    </div>
+                    <div class="collapsible-content">
+                        <ul class="specific-objectives">
+                        </ul>
+                        <button class="add-specific-btn" onclick="addSpecificObjective(this)">+ Agregar Objetivo Específico</button>
+                    </div>
+                </div>
+            `;
+            
+            container.insertBefore(createElementFromHTML(objectiveHTML), button);
+            updateStats();
+        }
+
+        function deleteStrategicObjective(button) {
+            if (confirm('¿Está seguro de que desea eliminar este objetivo estratégico?')) {
+                button.closest('.strategic-objective').remove();
+                updateStats();
+            }
+        }
+
+        function addSpecificObjective(button) {
+            const list = button.previousElementSibling;
+            
+            const specificHTML = `
+                <li class="specific-objective">
+                    <div class="specific-actions">
+                        <button class="action-btn delete" onclick="deleteSpecificObjective(this)" title="Eliminar">×</button>
+                    </div>
+                    <div class="specific-title" contenteditable="false" onclick="makeEditable(this)">Nuevo objetivo específico</div>
+                    <div class="specific-description" contenteditable="false" onclick="makeEditable(this)">Descripción del objetivo</div>
+                    <div class="specific-responsible" contenteditable="false" onclick="makeEditable(this)">👤 Responsable</div>
+                </li>
+            `;
+            
+            list.appendChild(createElementFromHTML(specificHTML));
+            updateStats();
+        }
+
+        function deleteSpecificObjective(button) {
+            if (confirm('¿Está seguro de que desea eliminar este objetivo específico?')) {
+                button.closest('.specific-objective').remove();
+                updateStats();
+            }
+        }
+
+        function toggleCollapse(header) {
+            const objective = header.closest('.strategic-objective');
+            objective.classList.toggle('collapsed');
+        }
+
+        function createElementFromHTML(htmlString) {
+            const div = document.createElement('div');
+            div.innerHTML = htmlString.trim();
+            return div.firstChild;
+        }
+
+        function updateStats() {
+            const strategicCount = document.querySelectorAll('.strategic-objective').length;
+            const specificCount = document.querySelectorAll('.specific-objective').length;
+            const unitsCount = document.querySelectorAll('.business-unit').length;
+            
+            document.querySelectorAll('.stat-number')[0].textContent = strategicCount;
+            document.querySelectorAll('.stat-number')[1].textContent = specificCount + '+';
+            document.querySelectorAll('.stat-number')[2].textContent = unitsCount;
+        }
+
+        function exportHTML() {
+            const clone = document.documentElement.cloneNode(true);
+            
+            // Limpiar elementos de edición
+            clone.querySelectorAll('.edit-mode-toggle, .export-btn, .add-unit-btn, .unit-actions, .objective-actions, .specific-actions, .add-objective-btn, .add-specific-btn').forEach(el => {
+                el.remove();
+            });
+            
+            // Remover atributos de edición
+            clone.querySelectorAll('[contenteditable]').forEach(el => {
+                el.removeAttribute('contenteditable');
+                el.removeAttribute('onclick');
+            });
+            
+            clone.querySelectorAll('.collapsible-header').forEach(el => {
+                el.setAttribute('onclick', 'toggleCollapse(this)');
+            });
+            
+            // Agregar script para colapsar
+            const script = clone.querySelector('script');
+            script.innerHTML = `
+                function toggleCollapse(header) {
+                    const objective = header.closest('.strategic-objective');
+                    objective.classList.toggle('collapsed');
+                }
+            `;
+            
+            const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'objetivos_estrategicos.html';
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+        });
+    </script>
+</body>
+</html>
