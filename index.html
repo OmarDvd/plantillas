@@ -812,7 +812,8 @@
             document.querySelectorAll('.stat-number')[2].textContent = unitsCount;
         }
 
-  function exportHTML() {
+ 
+function exportHTML() {
     const content = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
     const blob = new Blob([content], { type: "text/html" });
     const url = URL.createObjectURL(blob);
@@ -824,6 +825,7 @@
 
     URL.revokeObjectURL(url);
 }
+
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
