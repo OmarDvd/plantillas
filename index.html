@@ -812,44 +812,18 @@
             document.querySelectorAll('.stat-number')[2].textContent = unitsCount;
         }
 
-        function exportHTML() {
-            const clone = document.documentElement.cloneNode(true);
-            
-            // Limpiar elementos de edición
-            clone.querySelectorAll('.edit-mode-toggle, .export-btn, .add-unit-btn, .unit-actions, .objective-actions, .specific-actions, .add-objective-btn, .add-specific-btn').forEach(el => {
-                el.remove();
-            });
-            
-            // Remover atributos de edición
-            clone.querySelectorAll('[contenteditable]').forEach(el => {
-                el.removeAttribute('contenteditable');
-                el.removeAttribute('onclick');
-            });
-            
-            clone.querySelectorAll('.collapsible-header').forEach(el => {
-                el.setAttribute('onclick', 'toggleCollapse(this)');
-            });
-            
-            // Agregar script para colapsar
-            const script = clone.querySelector('script');
-            script.innerHTML = `
-                function toggleCollapse(header) {
-                    const objective = header.closest('.strategic-objective');
-                    objective.classList.toggle('collapsed');
-                }
-            `;
-            
-            const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'objetivos_estrategicos.html';
-            a.click();
-            
-            URL.revokeObjectURL(url);
-        }
+  function exportHTML() {
+    const content = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    const blob = new Blob([content], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "objetivos_estrategicos.html";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
